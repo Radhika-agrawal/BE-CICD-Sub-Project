@@ -12,7 +12,7 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         -  name: clone the code from get
-           uses: action/checkout@v4
+           uses: actions/checkout@v4
         -  name: install package to run js code
            run: npm install
         -  name: run test case
