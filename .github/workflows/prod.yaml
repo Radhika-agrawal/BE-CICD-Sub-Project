@@ -1,0 +1,21 @@
+name: Subtraction-renderprodject
+
+on:
+  push:
+    branches:
+      -  main
+
+jobs:
+
+    Test:
+      name: test
+      runs-on: ubuntu-latest
+      steps:
+        -  name: clone the code from get
+           run: action/checkout@v4
+        -  name: install package to run js code
+           run: npm install
+        -  name: run test case
+           run: npm test   
+
+
