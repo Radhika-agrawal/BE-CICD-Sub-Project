@@ -1,38 +1,57 @@
-name: Subtraction-renderprodject
+name: CI/CD for Node.js App
 
 on:
   push:
     branches:
-      -  main
+      - main  # Trigger on pushes to the main branch
 
 jobs:
-
-  Test:
-    name: test
+  test:
+    name: test Node.js Application
     runs-on: ubuntu-latest
-    steps:
-      -  name: clone the code from get
-         uses: actions/checkout@v4
-      -  name: install package to run js code
-         run: npm install
-      -  name: run test case
-         run: npm test   
-  Deploy:
-    needs: Test
-    name: deploy
-    runs-on: ubuntu-latest
-       
-    steps:
-    -  name: clone the code from get
-       uses: actions/checkout@v4
 
-    -  name: Deploy to production
-       env:
-          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
-          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
-       run: | 
-          curl -X POST \
-          -H "Authorization: Bearer $RENDER_API_KEY" \
-          -H "Content-Type: application/json" \
-          -d '{"serviceId": "'$RENDER_SERVICE_ID'"}' \
-          https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Step 3: Install dependencies
+      - name: Install Dependencies
+        run: npm install
+
+      # Step 4: test the app
+      - name: test the App
+        run: npm run test
+
+  deploy:
+    name: Deploy Node.js Application
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      # Step 1: Deploy to EC2
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          port: 22
+          script: |
+            # Step 1.1: Create application directory
+            mkdir -p ~/nodejs-app && cd ~/nodejs-app
+
+            # Step 1.2: Remove old files
+            rm -rf *
+
+            # Step 1.3: Pull the code and run the app
+            git pull https://github.com/Radhika-agrawal/BE-CICD-Sub-Project.git
+            cd BE-CICD-Sub-Project
+            npm install
+            node server.js
