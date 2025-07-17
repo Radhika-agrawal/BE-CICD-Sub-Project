@@ -18,4 +18,4 @@ function listenServer()  {
   console.log("Server running at PORT: 4000");
 }
 
-server.listen(80, '0.0.0.0', listenServer);
+server.listen(4000, '0.0.0.0', listenServer);
